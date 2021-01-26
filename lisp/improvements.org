@@ -1,0 +1,25 @@
+#+STARTUP: showeverything indent
+
+* extra-gitgrep
+** what default value for
+   extra-gitgrep-default-git-repo
+** should be automatically initialized?
+   extra-gitgrep-file-extensions
+   extra-gitgrep-default-comment-string
+
+* ALTERNATIVA AO GIT GREP
+;; from: https://stegosaurusdormant.com/emacs-ripgrep/ -- more info: https://blog.burntsushi.net/ripgrep/
+(grep-apply-setting
+ 'grep-find-command
+ (cons (format "z:\\bin\\rg.exe -n -H --no-heading -e \"\" %s" (my-default-directory)) 38)
+ ;; '("z:\\bin\\rg.exe -n -H --no-heading -e \"\" $(cd)" . 38)
+ )
+
+
+* mood-line
+add slime / sly package information
+
+* https://github.com/rougier/scientific-visualization-book
+Great book regarding visualization of data
+note: many other stuff in the same repo
+author of aerial-emacs, nano-emacs
