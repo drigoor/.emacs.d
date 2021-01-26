@@ -31,7 +31,6 @@
 (set-face-background 'region "#ffffcc")
 (set-face-background 'hl-line "#faf8f4")
 (set-face-background 'trailing-whitespace "red")
-(set-face-background 'internal-border (face-background 'default))
 
 (set-face-foreground 'window-divider-first-pixel (face-background 'default))
 (set-face-foreground 'window-divider(face-background 'default))
