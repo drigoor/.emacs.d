@@ -20,23 +20,29 @@
 (tooltip-mode 0)
 (scroll-bar-mode 0)
 (blink-cursor-mode 0)
-(fringe-mode 0)
+(fringe-mode '(8 . 8))
 (global-hl-line-mode 1)
 
-(set-frame-font "Source Code Pro 9" nil t)
+(set-frame-font "Consolas 10" nil t)
 
-(set-frame-parameter (selected-frame) 'internal-border-width 16)
+(set-frame-parameter (selected-frame) 'internal-border-width 8)
+
+(set-background-color "#fefefc")
 
 (set-face-background 'cursor "orange")
 (set-face-background 'region "#ffffcc")
+(set-face-background 'fringe (face-background 'default))
 (set-face-background 'hl-line "#faf8f4")
 (set-face-background 'trailing-whitespace "red")
+(set-face-background 'internal-border "#faf8f4")
 
-(set-face-foreground 'window-divider-first-pixel (face-background 'default))
-(set-face-foreground 'window-divider(face-background 'default))
-(set-face-foreground 'window-divider-last-pixel (face-background 'default))
+(set-face-foreground 'window-divider "#faf8f4")
+(set-face-foreground 'window-divider-first-pixel "#f5f2ef")
+(set-face-foreground 'window-divider-last-pixel "#f5f2ef")
 
-(setq window-divider-default-right-width 16)
+(setq confirm-nonexistent-file-or-buffer nil)
+
+(setq window-divider-default-right-width 12)
 (setq window-divider-default-places 'right-only)
 (window-divider-mode 1)
 
@@ -72,12 +78,12 @@
                     :overline nil
                     :underline nil
                     :box `(:line-width 3
-                           :color ,"#f2ecdb"
+                           :color ,"#f0e0d0"
                            :style nil))
 (set-face-attribute 'mode-line-inactive nil
                     :height 1.0
                     :foreground "#aba9a7"
-                    :background "#f5f2ef"
+                    :background "#faf8f4"
                     :overline nil
                     :underline nil
                     :inherit nil
@@ -89,14 +95,15 @@
 (setq custom-file (concat user-emacs-directory "custom.el"))
 
 (custom-set-variables
- '(echo-keystrokes 0.1)
- '(auto-save-default nil)
- '(make-backup-files nil)
- '(delete-selection-mode t)
- '(scroll-step 1)
- '(mouse-wheel-progressive-speed nil)
- '(mouse-wheel-scroll-amount '(7 ((shift) . 1)))
- )
+  '(echo-keystrokes 0.1)
+  '(auto-save-default nil)
+  '(make-backup-files nil)
+  '(delete-selection-mode t)
+  '(scroll-step 1)
+  '(mouse-wheel-progressive-speed nil)
+  '(mouse-wheel-scroll-amount '(7 ((shift) . 1)))
+  '(split-width-threshold 200)
+  '(split-height-threshold nil))
 
 ;; -- ido-mode -------------------------
 (ido-mode t)
@@ -137,6 +144,8 @@
 (global-set-key (kbd "C-S-s") 'extra-gitgrep)
 (global-set-key (kbd "C-M-S-s") 'extra-gitgrep-with-comments)
 
+;; (setq-default compilation-context-lines t) ; when there is no fringe in grep this will show an arrow and does not scroll
+
 ;; -- hide/show ------------------------
 (require 'extra-hide-show)
 
@@ -151,10 +160,9 @@
 (add-hook 'prog-mode-hook 'hide-show-fn)
 
 ;; -- other packages -----------------------------------------------------------
-(use-package aggressive-indent
-  :config (global-aggressive-indent-mode t)
-          (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
-          (add-to-list 'aggressive-indent-excluded-modes 'dockerfile-mode))
+(use-package popwin
+  :config (popwin-mode 1)
+          (global-set-key (kbd "C-z") popwin:keymap))
 
 (use-package anzu
   :bind (("<remap> <query-replace>" . 'anzu-query-replace)
@@ -188,9 +196,7 @@
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode)
-  :config (set-face-attribute 'rainbow-delimiters-unmatched-face nil ; from: https://writequit.org/eos/eos-appearance.html
-                              :foreground 'unspecified
-                              :inherit 'error)
+  :config (set-face-attribute 'rainbow-delimiters-unmatched-face nil :foreground 'unspecified :inherit 'error) ; from: https://writequit.org/eos/eos-appearance.html
           (set-face-attribute 'rainbow-delimiters-depth-1-face nil :foreground "DarkGoldenrod3")
           (set-face-attribute 'rainbow-delimiters-depth-2-face nil :foreground "DarkGoldenrod3")
           (set-face-attribute 'rainbow-delimiters-depth-3-face nil :foreground "DarkGoldenrod3")
@@ -242,6 +248,8 @@
 ;; -- global keys --------------------------------------------------------------
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-x C-z"))
+
+(global-set-key (kbd "C-x k") 'kill-this-buffer)
 
 (global-set-key (kbd "<C-tab>") 'other-window)
 (global-set-key (kbd "<C-S-tab>") (lambda () (interactive) (other-window -1)))

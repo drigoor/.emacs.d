@@ -22,13 +22,13 @@
   (if (search-forward *todo* nil t)
       (forward-line 1)
       (message "Signature %s not found forward in buffer."
-               *full-todo*)))
+               *todo*)))
 
 (defun search-todo-backward ()
   (interactive)
   (unless (search-backward *todo* nil t)
     (message "Signature %s not found backward in buffer."
-             *full-todo*)))
+             *todo*)))
 
 ;; from: https://emacsredux.com/blog/2013/05/22/smarter-navigation-to-the-beginning-of-a-line/
 (defun smarter-move-beginning-of-line (arg)

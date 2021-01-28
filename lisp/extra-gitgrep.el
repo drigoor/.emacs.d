@@ -42,10 +42,12 @@
 
 (defun extra-gitgrep ()
   (interactive)
-  (extra-gitgrep-command nil))
+  (extra-gitgrep-command nil)
+  (select-window (get-buffer-window "*grep*")))
 
 (defun extra-gitgrep-with-comments ()
   (interactive)
-  (extra-gitgrep-command t))
+  (extra-gitgrep-command t)
+  (select-window (get-buffer-window "*grep*")))
 
 ;;; extra-gitgrep.el ends here
