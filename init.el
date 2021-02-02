@@ -15,10 +15,10 @@
       inhibit-startup-echo-area-message t
       initial-scratch-message nil)
 
-(menu-bar-mode 0)
-(tool-bar-mode 0)
-(tooltip-mode 0)
-(scroll-bar-mode 0)
+(menu-bar-mode 1)
+(tool-bar-mode 1)
+(tooltip-mode 1)
+(scroll-bar-mode 1)
 (blink-cursor-mode 0)
 (fringe-mode '(8 . 8))
 (global-hl-line-mode 1)
