@@ -196,7 +196,7 @@
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode)
-  :config (set-face-attribute 'rainbow-delimiters-unmatched-face nil :foreground 'unspecified :inherit 'error) ; from: https://writequit.org/eos/eos-appearance.html
+  :config (set-face-attribute 'rainbow-delimiters-unmatched-face nil :foreground (face-background 'default) :background (face-foreground 'error)) ; from: https://writequit.org/eos/eos-appearance.html
           (set-face-attribute 'rainbow-delimiters-depth-1-face nil :foreground "DarkGoldenrod3")
           (set-face-attribute 'rainbow-delimiters-depth-2-face nil :foreground "DarkGoldenrod3")
           (set-face-attribute 'rainbow-delimiters-depth-3-face nil :foreground "DarkGoldenrod3")
