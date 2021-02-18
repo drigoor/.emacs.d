@@ -2,10 +2,13 @@
 
 ;;; Code:
 
-(defvar windows-p (string-match "windows" (symbol-name system-type)))
+;; (defvar windows-p (string-match "windows" (symbol-name system-type)))
 
-(when windows-p
-  (add-to-list 'exec-path "C:/home/bin/git/usr/bin")) ; to allow ediff et al. in emacs
+;; (when windows-p
+;;   (add-to-list 'exec-path "C:/home/bin/git/usr/bin")) ; to allow ediff et al. in emacs
+
+;; (add-to-list 'exec-path "C:/msys64/mingw64/bin")
+;; (add-to-list 'exec-path "C:/msys64/mingw64/lib")
 
 ;; -- other packages -----------------------------------------------------------
 
@@ -60,5 +63,10 @@
 ;;                                                                "c:/progra\~1/steelb\~1/2.0.0/sbcl.exe")
 ;;                                                               (linux-p
 ;;                                                                "~/bin/sbcl/bin/sbcl")))))
+
+;; (use-package sly
+;;   :config (setq inferior-lisp-program (expand-file-name "c:/progra\~1/steelb\~1/2.0.0/sbcl.exe")))
+
+;; (use-package julia-mode)
 
 ;;; etc.el ends here
