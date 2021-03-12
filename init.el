@@ -50,7 +50,7 @@
 (fset 'display-startup-echo-area-message 'ignore) ; the official "hack" takes to long: '(inhibit-startup-echo-area-message (user-login-name))
 
 (setq-default fill-column 80)
-(setq-default tab-width 8)
+(setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
 (setq-default show-trailing-whitespace t)
 (setq-default truncate-lines t)
@@ -67,8 +67,8 @@
 (defun flash-mode-line ()
   (invert-face 'mode-line)
   (run-with-timer 0.1 nil #'invert-face 'mode-line))
-(setq visible-bell nil)
 (setq ring-bell-function 'flash-mode-line)
+(setq visible-bell nil)
 
 (set-face-attribute 'mode-line nil
                     :height 1.0
@@ -139,7 +139,8 @@
 (require 'extra-gitgrep)
 
 (setq extra-gitgrep-default-git-repo nil)
-(setq extra-gitgrep-file-extensions "*.lisp *.cl *.el *.java")
+;; (setq extra-gitgrep-file-extensions "*.lisp *.cl *.el *.java")
+(setq extra-gitgrep-file-extensions "*")
 
 (global-set-key (kbd "C-S-s") 'extra-gitgrep)
 (global-set-key (kbd "C-M-S-s") 'extra-gitgrep-with-comments)
@@ -160,10 +161,6 @@
 (add-hook 'prog-mode-hook 'hide-show-fn)
 
 ;; -- other packages -----------------------------------------------------------
-(use-package popwin
-  :config (popwin-mode 1)
-          (global-set-key (kbd "C-z") popwin:keymap))
-
 (use-package anzu
   :bind (("<remap> <query-replace>" . 'anzu-query-replace)
          ("<remap> <query-replace-regexp>" . 'anzu-query-replace-regexp))
@@ -259,7 +256,7 @@
 
 (global-set-key (kbd "C-M-#") (open-file "~/.emacs.d/init.el"))
 
-(global-set-key (kbd "C-c c") 'comment-or-uncomment-region-or-line)
+(global-set-key (kbd "C-c c") 'comment-or-uncomment-region-or-line) ; mudar isto para colocar #| |# ?
 (global-set-key (kbd "C-c d") 'duplicate-current-line-or-region)
 (global-set-key (kbd "C-S-k") 'my-kill-line)
 
