@@ -2,6 +2,7 @@
 
 (add-hook 'after-init-hook
           (lambda ()
+            (setq default-directory "~")
             (message (format "Initialization time: %s" (emacs-init-time)))))
 
 (setq frame-title-format

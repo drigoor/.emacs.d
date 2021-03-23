@@ -58,14 +58,8 @@
 ;; to install sbcl:
 ;; INSTALL_ROOT=/home/user/bin/sbcl sh install.sh
 
-;; (use-package sly
-;;   :config (setq inferior-lisp-program (expand-file-name (cond (windows-p
-;;                                                                "c:/progra\~1/steelb\~1/2.0.0/sbcl.exe")
-;;                                                               (linux-p
-;;                                                                "~/bin/sbcl/bin/sbcl")))))
-
-;; (use-package sly
-;;   :config (setq inferior-lisp-program (expand-file-name "c:/progra\~1/steelb\~1/2.0.0/sbcl.exe")))
+(use-package sly
+  :config (setq inferior-lisp-program (expand-file-name "C:/home/scoop/apps/sbcl/current/sbcl.exe")))
 
 ;; (use-package julia-mode)
 

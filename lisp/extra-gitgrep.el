@@ -22,7 +22,8 @@
 
 (defun extra-gitgrep-command (search-in-comments-p)
   (let ((dir (or (vc-root-dir)
-                 extra-gitgrep-default-git-repo)))
+                 extra-gitgrep-default-git-repo
+                 default-directory)))
     (let ((regexp (grep-read-regexp)))
       (when (and (stringp regexp) (> (length regexp) 0))
         (let ((command (grep-expand-template "git --no-pager grep -n -i -e <R> -- <F>"
