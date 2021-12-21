@@ -16,15 +16,15 @@
       inhibit-startup-echo-area-message t
       initial-scratch-message nil)
 
-(menu-bar-mode 1)
-(tool-bar-mode 1)
-(tooltip-mode 1)
-(scroll-bar-mode 1)
+(menu-bar-mode 0)
+(tool-bar-mode 0)
+(tooltip-mode 0)
+(scroll-bar-mode 0)
 (blink-cursor-mode 0)
 (fringe-mode '(8 . 8))
 (global-hl-line-mode 1)
 
-(set-frame-font "Consolas 10" nil t)
+(set-frame-font "Consolas 10") ; JuliaMono
 
 (set-frame-parameter (selected-frame) 'internal-border-width 8)
 
@@ -56,6 +56,7 @@
 (setq-default show-trailing-whitespace t)
 (setq-default truncate-lines t)
 (setq-default line-spacing 0.1)
+(setq-default column-number-mode t)
 
 ;; from: https://github.com/luismbo/dot-emacs/blob/master/init.el
 (add-hook 'prog-mode-hook
@@ -140,8 +141,7 @@
 (require 'extra-gitgrep)
 
 (setq extra-gitgrep-default-git-repo nil)
-;; (setq extra-gitgrep-file-extensions "*.lisp *.cl *.el *.java")
-(setq extra-gitgrep-file-extensions "*")
+(setq extra-gitgrep-file-extensions "*") ;; "*.lisp *.cl *.el *.java"
 
 (global-set-key (kbd "C-S-s") 'extra-gitgrep)
 (global-set-key (kbd "C-M-S-s") 'extra-gitgrep-with-comments)
@@ -172,7 +172,7 @@
   :config (global-company-mode)
           (setq company-tooltip-limit 10)
           (setq company-dabbrev-downcase 0)
-          (setq company-idle-delay 0.5)
+          (setq company-idle-delay 1)
           (setq company-echo-delay 0)
           (setq company-minimum-prefix-length 2)
           (setq company-require-match nil)
@@ -204,6 +204,24 @@
           (set-face-attribute 'rainbow-delimiters-depth-7-face nil :foreground "DarkGoldenrod3")
           (set-face-attribute 'rainbow-delimiters-depth-8-face nil :foreground "DarkGoldenrod3")
           (set-face-attribute 'rainbow-delimiters-depth-9-face nil :foreground "DarkGoldenrod3"))
+
+;; from: http://nschum.de/src/emacs/
+(use-package highlight-symbol
+  :config (global-set-key [(control f3)] 'highlight-symbol)
+          (global-set-key [f3] 'highlight-symbol-next)
+ (global-set-key [(shift f3)] 'highlight-symbol-prev)
+ (global-set-key [(meta f3)] 'highlight-symbol-query-replace)
+ (setq highlight-symbol-colors '("orange"))
+ (setq highlight-symbol-foreground-color "red")
+ (set-face-attribute 'highlight-symbol-face nil
+     :foreground "red"
+     :background "red"))
+;; improvements:
+;;   + show status in modeline!
+;;   + colors VS faces
+
+
+
 
 ;; -- etc ----------------------------------------------------------------------
 (let ((user-settings-dir (concat user-emacs-directory "users/" user-login-name))) ; from: http://whattheemacsd.com/init.el-06.html
@@ -243,6 +261,33 @@
   (switch-to-buffer (other-buffer (current-buffer) 1)) ; https://emacsredux.com/blog/2013/04/28/switch-to-previous-buffer/
   (other-window 1))
 
+(defun find-my-buffer (name)
+  (dolist (buffer (buffer-list))
+    (when (string-match name (buffer-name buffer))
+      (return buffer))))
+
+(defun my-debug-layout ()
+  (interactive)
+  (delete-other-windows)
+  (split-window-right 100)
+  (switch-to-buffer (or (find-my-buffer "repl")
+                        (find-my-buffer "scratch")))
+  (split-window-below)
+  (other-window 1)
+  (switch-to-buffer (or (find-my-buffer "trace")
+                        (find-my-buffer "messages")))
+  (other-window 1))
+
+(defun scroll-up-with-fixed-cursor ()
+  (interactive)
+  (forward-line 1)
+  (scroll-up 1))
+
+(defun scroll-down-with-fixed-cursor ()
+  (interactive)
+  (forward-line -1)
+  (scroll-down 1))
+
 ;; -- global keys --------------------------------------------------------------
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-x C-z"))
@@ -265,6 +310,10 @@
 (global-set-key [remap move-beginning-of-line] 'smarter-move-beginning-of-line)
 
 (global-set-key [f5] 'revert-buffer-no-confirm)
+(global-set-key [f6] (lambda ()
+      (interactive)
+      (revert-buffer-no-confirm)
+      (hs-hide-all-comments)))
 (global-set-key [f9] 'whitespace-mode)
 (global-set-key [f10] 'toggle-truncate-lines)
 (global-set-key [f11] 'prelude-copy-file-name-to-clipboard)
@@ -280,6 +329,54 @@
 
 (global-set-key (kbd "C-M-S-a") 'reposition-point-at-top)
 
+;; layouts
 (global-set-key (kbd "C-c v") 'halve-other-window-height)
 (global-set-key (kbd "C-S-c v") 'halve-other-window-height2)
 (global-set-key (kbd "C-c 2") 'my-layout2)
+
+;; scroll
+(global-set-key "\M-i" "\C-u1\M-v")
+(global-set-key "\M-k" "\C-u1\C-v")
+(global-set-key (kbd "C-M-i") 'scroll-down-with-fixed-cursor)
+(global-set-key (kbd "C-M-k") 'scroll-up-with-fixed-cursor)
+
+(setq org-return-follows-link  t)
+
+
+(defun my-browse-url-maybe-privately (url &optional new-window)
+  "Ask whether URL should be browsed in a private browsing window."
+  (interactive "sURL: ")
+  (if (y-or-n-p "Private Browsing? ")
+      (my-browse-url-firefox-privately url)
+    (browse-url-default-browser url new-window)))
+
+(defun my-browse-url-firefox-privately (url &optional new-window)
+  "Make firefox open URL in private-browsing window."
+  (interactive (browse-url-interactive-arg "URL: "))
+  (let ((process-environment (browse-url-process-environment)))
+    (apply 'start-process
+           (concat "firefox " url)
+           nil
+           browse-url-firefox-program
+           (list "-private-window" url))))
+
+(setq browse-url-browser-function
+      '(("^https?://github" . my-browse-url-firefox-privately)
+        ("^https?://t\\.co" . my-browse-url-firefox-privately)
+        ("^https?://instagram\\.com" . my-browse-url-firefox-privately)
+        ;; ("." . my-browse-url-maybe-privately)))
+        ("." . my-browse-url-firefox-privately)))
+
+
+;; from: https://stackoverflow.com/questions/43765/pin-emacs-buffers-to-windows-for-cscope
+(defun toggle-window-dedicated ()
+  "Toggle whether the current active window is dedicated or not"
+  (interactive)
+  (message (if (let (window (get-buffer-window (current-buffer)))
+                 (set-window-dedicated-p window (not (window-dedicated-p window))))
+               "Window '%s' is dedicated"
+             "Window '%s' is normal")
+           (current-buffer)))
+
+
+(global-set-key [f8] 'toggle-window-dedicated)
