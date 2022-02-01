@@ -75,8 +75,8 @@
       ;; scroll-conservatively 100000
       scroll-preserve-screen-position 1)
 
-(when (fboundp 'pixel-scroll-precision-mode)
-  (pixel-scroll-precision-mode t))
+;; (when (fboundp 'pixel-scroll-precision-mode)
+;;   (pixel-scroll-precision-mode t))
 
 (cond
  ((find-font (font-spec :name "Consolas 10")) ; windows
@@ -91,7 +91,7 @@
 
 (fset 'yes-or-no-p 'y-or-n-p) ; enable y/n answers
 
-(add-to-list 'initial-frame-alist '(fullscreen . maximized)) ; maximize the initial frame automatically
+;; (add-to-list 'initial-frame-alist '(fullscreen . maximized)) ; maximize the initial frame automatically
 
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
@@ -185,10 +185,6 @@
 (setq uniquify-separator "/")
 (setq uniquify-after-kill-buffer-p t) ; rename after killing uniquified
 (setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
-
-
-
-(pixel-scroll-precision-mode)
 
 (use-package diminish
   :ensure t
