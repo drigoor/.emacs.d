@@ -1,0 +1,9 @@
+custom*
+/.emacs.desktop
+/.emacs.desktop.lock
+/auto-save-list
+/savefile
+/server/
+/elpa/
+/ido.last
+/transient/
