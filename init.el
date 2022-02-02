@@ -1,27 +1,26 @@
-;;; -*- coding: utf-8 -*-
+;;; init.el --- -*- coding: utf-8 -*-
 
-;; refs: https://github.com/bbatsov/emacs.d/blob/master/init.el
-;; refs: https://github.com/luismbo/dot-emacs/blob/master/init.el
-;; refs: https://github.com/zamansky/dot-emacs/blob/main/init.el
+;;; Commentary:
+
+;; References used:
+;;
+;; https://github.com/bbatsov/emacs.d/blob/master/init.el
+;;    from Emacs redux site
+;;
+;; https://github.com/luismbo/dot-emacs/blob/master/init.el
+;;
+;; https://github.com/zamansky/dot-emacs/blob/main/init.el
 ;;       https://cestlaz.github.io/stories/emacs/
-
+;;
+;;
+;;
 ;; USAR: https://ebzzry.com/en/emacs-pairs/
-
+;;
 ;; USAR: https://andreyorst.gitlab.io/posts/2020-05-10-making-emacs-tabs-look-like-in-atom/
+;;
 ;; USAR: https://andreyorst.gitlab.io/posts/2020-07-21-programming-ligatures-in-emacs/
 
-;; LEARNING: https://github.com/ssloy/tinyrenderer
-;; LEARNING: https://github.com/ssloy/tinyraytracer
-;;           https://andreyorst.gitlab.io/posts/2020-10-15-raymarching-with-fennel-and-love/
-
-;;;; Load Path
-
-                                        ; (add-to-list 'load-path "~/.emacs.d/lisp")
-
-
-;; emacs focus
-
-;;;; package.el
+;;; Code:
 
 (require 'package)
 (add-to-list 'package-archives
@@ -29,8 +28,8 @@
 (package-initialize)
 
 (defvar lbo:*auto-refreshed-packages* nil
-  "True if `lbo:ensure-package' has already refreshed the package
-  list in the current session")
+  "Non-nil if the package list was refrehsed in the current session.
+The package list is refreshed in `lbo:ensure-package'.")
 
 (defun lbo:ensure-package (name)
   (unless (package-installed-p name)
