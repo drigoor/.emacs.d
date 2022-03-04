@@ -182,8 +182,8 @@ The package list is refreshed in `lbo:ensure-package'.")
 
 (use-package multiple-cursors
   :ensure t
-  :config
-  (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines))
+  :bind (("C-S-c C-S-c" . 'mc/edit-lines)
+         ("C-S-<mouse-1>" . mc/add-cursor-on-click)))
 
 (use-package minions ; from: https://susamn.medium.com/ultimate-emacs-setup-with-documentation-in-org-mode-8ed32e2b3487
   :config
@@ -194,9 +194,9 @@ The package list is refreshed in `lbo:ensure-package'.")
 (use-package smartparens
   :ensure t
   :config
-    (require 'smartparens-config)
-    (smartparens-global-mode 1)
-    (show-paren-mode t))
+  (require 'smartparens-config)
+  (smartparens-global-mode 1)
+  (show-paren-mode t))
 ;; https://github.com/leeorengel/my-emacs-keybindings#smartparens
 
 (defconst savefile-dir (expand-file-name "savefile" user-emacs-directory))
@@ -320,16 +320,14 @@ The package list is refreshed in `lbo:ensure-package'.")
 (use-package crux
   :ensure t
   :bind
-  (("C-S-k"   . crux-kill-whole-line)
-   ("C-c k"   . crux-kill-other-buffers)
-   ("C-M-z"   . crux-indent-defun)
-   ("C-c d"   . crux-duplicate-current-line-or-region)
-   ("C-c M-d" . crux-duplicate-and-comment-current-line-or-region)
-   ("C-c r"   . crux-rename-buffer-and-file)
-   ([(M return)] . crux-smart-open-line))
-  :config
-  (global-set-key [remap kill-whole-line] #'crux-kill-whole-line)
-  (global-set-key [remap move-beginning-of-line] #'crux-move-beginning-of-line))
+  (("C-a"        . crux-move-beginning-of-line)
+   ("C-S-k"      . crux-kill-whole-line)
+   ("C-c k"      . crux-kill-other-buffers)
+   ("C-M-z"      . crux-indent-defun)
+   ("C-c d"      . crux-duplicate-current-line-or-region)
+   ("C-c M-d"    . crux-duplicate-and-comment-current-line-or-region)
+   ("C-c r"      . crux-rename-buffer-and-file)
+   ([(M return)] . crux-smart-open-line)))
 
 (use-package marginalia
   ;; The :init configuration is always executed (Not lazy!)
@@ -344,9 +342,9 @@ The package list is refreshed in `lbo:ensure-package'.")
 ;; -- magit --------------------------------------------------------------------
 
 (defun magit-status-around (orig-fun &rest args)
-    (window-configuration-to-register 'x)
-    (delete-other-windows)
-    (apply orig-fun args))
+  (window-configuration-to-register 'x)
+  (delete-other-windows)
+  (apply orig-fun args))
 
 ;; references:
 ;; https://github.com/bradwright/emacs-d/blob/master/packages/init-magit.el
@@ -469,9 +467,7 @@ The package list is refreshed in `lbo:ensure-package'.")
                     :background "#f2ecdb"
                     :overline nil
                     :underline nil
-                    :box `(:line-width 3
-                           :color ,"#f0e0d0"
-                           :style nil))
+                    :box `(:line-width 3 :color ,"#f0e0d0" :style nil))
 (set-face-attribute 'mode-line-inactive nil
                     :height 1.0
                     :foreground "#aba9a7"
@@ -479,9 +475,7 @@ The package list is refreshed in `lbo:ensure-package'.")
                     :overline nil
                     :underline nil
                     :inherit nil
-                    :box `(:line-width 3
-                           :color ,"#f5f2ef"
-                           :style nil))
+                    :box `(:line-width 3 :color ,"#f5f2ef" :style nil))
 
 ;; (require 'extra-use-package) ; (package-initialize) -- for the why check package--ensure-init-file
 ;; (require 'extra-ediff)
@@ -581,8 +575,8 @@ The package list is refreshed in `lbo:ensure-package'.")
     (skip-syntax-backward "w_")
     (let* ((found? (re-search-backward (concat "\\_<" (regexp-quote (current-word)) "\\_>") nil t))
            (pt2 (save-excursion
-                 (re-search-forward (concat "\\_<" (regexp-quote (current-word)) "\\_>") nil t)
-                 (point)))
+                  (re-search-forward (concat "\\_<" (regexp-quote (current-word)) "\\_>") nil t)
+                  (point)))
            (text (with-current-buffer (current-buffer)
                    (buffer-substring-no-properties (point) pt2))))
       (cond (found?
@@ -599,7 +593,7 @@ The package list is refreshed in `lbo:ensure-package'.")
   (interactive)
   (let ((filename (if (equal major-mode 'dired-mode)
                       default-directory
-                      (buffer-file-name))))
+                    (buffer-file-name))))
     (when filename
       (kill-new filename)
       (message "%s" filename))))
@@ -608,11 +602,11 @@ The package list is refreshed in `lbo:ensure-package'.")
 (defun open-buffer-path ()
   (interactive)
   (cl-flet ((w32ify-path (path)
-              (convert-standard-filename (replace-regexp-in-string "/" "\\" path t t))))
+                         (convert-standard-filename (replace-regexp-in-string "/" "\\" path t t))))
     (cond (buffer-file-name
-            (w32-shell-execute "open" "explorer" (concat "/e,/select," (w32ify-path buffer-file-name))))
+           (w32-shell-execute "open" "explorer" (concat "/e,/select," (w32ify-path buffer-file-name))))
           (default-directory
-           (w32-shell-execute "explore" (w32ify-path default-directory)))
+            (w32-shell-execute "explore" (w32ify-path default-directory)))
           (t
            (user-error "Current buffer not associated with any path")))))
 
@@ -626,7 +620,7 @@ The package list is refreshed in `lbo:ensure-package'.")
   ;;(message "force-reverting value is %s" force-reverting)
   (if (or force-reverting (not (buffer-modified-p)))
       (revert-buffer :ignore-auto :noconfirm)
-      (error "The buffer has been modified")))
+    (error "The buffer has been modified")))
 
 (global-set-key (kbd "C-M-#") (open-file user-init-file))
 ;; (global-set-key (kbd "C-M-!") (open-file "C:/home/setup-windows.ps1"))
