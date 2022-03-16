@@ -339,6 +339,9 @@ The package list is refreshed in `lbo:ensure-package'.")
 (use-package highlight-parentheses
   :ensure t)
 
+(use-package ahk-mode
+  :ensure t)
+
 ;; -- magit --------------------------------------------------------------------
 
 (defun magit-status-around (orig-fun &rest args)
@@ -644,8 +647,8 @@ The package list is refreshed in `lbo:ensure-package'.")
 (global-set-key [f12] 'open-buffer-path)
 
 (define-key isearch-mode-map (kbd "C-d") 'sacha/isearch-yank-current-word) ; Type C-s (isearch-forward) to start interactively searching forward, and type C-x to get the current word.
-(global-set-key '[M-up] 'sacha/search-word-backward)
-(global-set-key '[M-down] 'sacha/search-word-forward)
+(global-set-key '[C-M-up] 'sacha/search-word-backward)
+(global-set-key '[C-M-down] 'sacha/search-word-forward)
 
 ;; scroll
 (global-set-key "\M-i" "\C-u1\M-v")
