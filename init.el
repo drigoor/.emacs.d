@@ -6,42 +6,47 @@
 
 ;; -----------------------------------------------------------------------------
 
+(setq gc-cons-threshold most-positive-fixnum) ; Minimize garbage collection during startup
+
+
+;; (defun split-and-run-calendar () ; from: https://www.masteringemacs.org/article/maximizing-emacs-startup
+;;   (interactive)
+;;   (setq w1 (selected-window)) ; w1 = top left window.
+;;   (setq w2 (split-window w1 9)) ; w2 = bottom window.
+;;   (setq w3 (split-window w1 35 t)) ; w3 = top right window.
+;;   (calendar-basic-setup nil t)
+;;   (with-selected-window w3
+;;     (switch-to-buffer "*Calendar*")))
+
+
+(add-hook 'emacs-startup-hook ; NOTE may be disabled by `inhibit-startup-hooks'
+          (lambda ()
+            (setq gc-cons-threshold 800000) ; Lower threshold back to 8 MiB
+            (message "Emacs loaded in %s with %d garbage collections."
+                     (emacs-init-time "%.2f seconds")
+                     gcs-done)
+
+
+            ))
+
+;; Package configs
 (require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
+(setq package-enable-at-startup nil)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
-(defvar lbo:*auto-refreshed-packages* nil
-  "Non-nil if the package list was refrehsed in the current session.
-The package list is refreshed in `lbo:ensure-package'.")
-
-(defun lbo:ensure-package (name)
-  (unless (package-installed-p name)
-    (unless lbo:*auto-refreshed-packages*
-      (package-refresh-contents)
-      (setq lbo:*auto-refreshed-packages* t))
-    (package-install name)))
-
-(lbo:ensure-package 'use-package)
-
-(eval-when-compile
-  (require 'use-package)
-  (setq use-package-always-ensure t)
-  (setq use-package-verbose t))
+;; Bootstrap `use-package`
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(require 'use-package)
+(setq use-package-always-ensure t)
+(setq use-package-verbose t)
 
 ;; -------------------------------------
 
 (setq large-file-warning-threshold 100000000) ; warn when opening files bigger than 100MB
-
-(setq gc-cons-threshold most-positive-fixnum) ; Minimize garbage collection during startup
-
-(add-hook 'emacs-startup-hook ; NOTE may be disabled by `inhibit-startup-hooks'
-          (lambda ()
-            (setq gc-cons-threshold (expt 2 23)) ; Lower threshold back to 8 MiB (default is 800kB)
-            (message (format "Initialization time: %seconds" (emacs-init-time)))))
-
 (setq confirm-kill-processes nil) ; quit Emacs directly even if there are running processes
-
 (setq confirm-nonexistent-file-or-buffer nil)
 
 ;; -------------------------------------
@@ -56,6 +61,7 @@ The package list is refreshed in `lbo:ensure-package'.")
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
+(tooltip-mode -1)
 (blink-cursor-mode -1)
 
 (set-fringe-mode 10)
@@ -66,7 +72,7 @@ The package list is refreshed in `lbo:ensure-package'.")
 
 (setq mode-line-percent-position "")
 
-(set-frame-parameter (selected-frame) 'internal-border-width 8)
+(set-frame-parameter (selected-frame) 'internal-border-width 16)
 
 (set-background-color "#fefefc")
 
@@ -97,7 +103,8 @@ The package list is refreshed in `lbo:ensure-package'.")
                           (buffer-modified-p))
                  "  •"))))
 
-(setq scroll-margin 0
+(setq scroll-step 1
+      scroll-margin 0
       scroll-conservatively 100000
       scroll-preserve-screen-position 1)
 
@@ -120,33 +127,27 @@ The package list is refreshed in `lbo:ensure-package'.")
 
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 8)
-(setq-default fill-column 80)
+(setq-default fill-column 99)
 
 (setq-default show-trailing-whitespace t)
 (setq-default truncate-lines t)
 
-(setq require-final-newline t)
+(setq-default require-final-newline t)
 
 (setq custom-file (concat user-emacs-directory "custom.el"))
 
+(setq auto-save-default nil)
+(setq make-backup-files nil)
+
+(setq echo-keystrokes 0.1)
+
+(setq mouse-wheel-progressive-speed nil)
+(setq mouse-wheel-scroll-amount '(7 ((shift) . 1) ((meta) . hscroll) ((control) . text-scale)))
+
 (custom-set-variables
- ;;  '(echo-keystrokes 0.1)
- '(auto-save-default nil)
- '(make-backup-files nil)
- '(delete-selection-mode t)
- '(scroll-step 1)
- '(mouse-wheel-progressive-speed nil)
- '(mouse-wheel-scroll-amount '(7 ((shift) . 1) ((meta) . hscroll) ((control) . text-scale)))
- ;;  '(split-width-threshold 200)
- ;;  '(split-height-threshold nil)
- )
+ '(delete-selection-mode t))
 
 (global-prettify-symbols-mode +1) ; fancy lambdas
-
-(defun mode-name-as-lambda-symbol ()
-  (setq mode-name "λ"))
-
-;; (add-hook 'emacs-lisp-mode-hook #'mode-name-as-lambda-symbol)
 
 ;; -------------------------------------
 
@@ -178,39 +179,38 @@ The package list is refreshed in `lbo:ensure-package'.")
 (setq org-support-shift-select +1)
 (setq org-return-follows-link  t)
 
-;; -----------------------------------------------------------------------------
-
-(use-package multiple-cursors
-  :ensure t
-  :bind (("C-S-c C-S-c" . 'mc/edit-lines)
-         ("C-S-<mouse-1>" . mc/add-cursor-on-click)))
-
 (use-package minions ; from: https://susamn.medium.com/ultimate-emacs-setup-with-documentation-in-org-mode-8ed32e2b3487
   :config
   (setq minions-mode-line-lighter ""
         minions-mode-line-delimiters '("" . ""))
   (minions-mode 1))
 
+;; -----------------------------------------------------------------------------
+
+(use-package multiple-cursors
+  :bind (("C-S-c C-S-c" . 'mc/edit-lines)
+         ("C-S-<mouse-1>" . mc/add-cursor-on-click)))
+
+;; see: https://github.com/zamansky/dot-emacs/blob/main/config.org
 (use-package smartparens
-  :ensure t
   :config
   (require 'smartparens-config)
   (smartparens-global-mode 1)
   (show-paren-mode t))
 ;; https://github.com/leeorengel/my-emacs-keybindings#smartparens
 
-(defconst savefile-dir (expand-file-name "savefile" user-emacs-directory))
-(unless (file-exists-p savefile-dir)
-  (make-directory savefile-dir))
+;; (defconst savefile-dir (expand-file-name "savefile" user-emacs-directory))
+;; (unless (file-exists-p savefile-dir)
+;;   (make-directory savefile-dir))
+;;
+;; (use-package saveplace ; saveplace remembers your location in a file when saving files
+;;   :config
+;;   (setq save-place-file (expand-file-name "saveplace" savefile-dir))
+;;   (setq-default save-place t)) ; activate it for all buffers
 
-(use-package saveplace ; saveplace remembers your location in a file when saving files
-  :config
-  (setq save-place-file (expand-file-name "saveplace" savefile-dir))
-  (setq-default save-place t)) ; activate it for all buffers
-
-(use-package desktop ; state of emacs is saved from one session to another
-  :config
-  (desktop-save-mode +1))
+;; (use-package desktop ; state of emacs is saved from one session to another
+;;   :config
+;;   (desktop-save-mode +1))
 
 (use-package windmove
   :config
@@ -240,7 +240,6 @@ The package list is refreshed in `lbo:ensure-package'.")
 ;;   + colors VS faces
 
 (use-package anzu
-  :ensure t
   :bind
   (("<remap> <query-replace>" . 'anzu-query-replace)
    ("<remap> <query-replace-regexp>" . 'anzu-query-replace-regexp))
@@ -249,11 +248,9 @@ The package list is refreshed in `lbo:ensure-package'.")
   (set-face-foreground 'anzu-mode-line "#FF6F00"))
 
 (use-package rainbow-mode
-  :ensure t
   :hook (prog-mode-hook . rainbow-mode))
 
 (use-package rainbow-delimiters
-  :ensure t
   :hook (prog-mode . rainbow-delimiters-mode)
   :config
   ;; from: https://writequit.org/eos/eos-appearance.html
@@ -265,15 +262,12 @@ The package list is refreshed in `lbo:ensure-package'.")
              (set-face-attribute face nil :foreground "DarkGoldenrod3"))))
 
 (use-package flycheck
-  :ensure t
   :config
   (add-hook 'after-init-hook #'global-flycheck-mode))
 
-(use-package flycheck-eldev
-  :ensure t)
+(use-package flycheck-eldev)
 
 (use-package web-mode
-  :ensure t
   :custom
   (web-mode-markup-indent-offset 2)
   (web-mode-css-indent-offset 2)
@@ -282,24 +276,25 @@ The package list is refreshed in `lbo:ensure-package'.")
   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode)))
 
 (use-package markdown-mode
-  :ensure t
   :mode (("\\.md\\'" . gfm-mode)
          ("\\.markdown\\'" . gfm-mode))
   :config
   (setq markdown-fontify-code-blocks-natively t))
 
 (use-package company
-  :ensure t
   :config
   (setq company-idle-delay 0.5)
   (setq company-show-quick-access t)
   (setq company-tooltip-limit 10)
-  (setq company-minimum-prefix-length 2)
+  (setq company-minimum-prefix-length 3)
   (setq company-tooltip-align-annotations t)
   ;; invert the navigation direction if the the completion popup-isearch-match
   ;; is displayed on top (happens near the bottom of windows)
   (setq company-tooltip-flip-when-above t)
   (global-company-mode))
+
+(use-package company-box
+  :hook (company-mode . company-box-mode))
 
 (use-package hl-todo ; from: https://www.reddit.com/r/emacs/comments/f8tox6/todo_highlighting/
   :hook (prog-mode . hl-todo-mode)
@@ -318,7 +313,6 @@ The package list is refreshed in `lbo:ensure-package'.")
           ("DEPRECATED" font-lock-doc-face bold))))
 
 (use-package crux
-  :ensure t
   :bind
   (("C-a"        . crux-move-beginning-of-line)
    ("C-S-k"      . crux-kill-whole-line)
@@ -336,11 +330,9 @@ The package list is refreshed in `lbo:ensure-package'.")
   ;; enabled right away. Note that this forces loading the package.
   (marginalia-mode))
 
-(use-package highlight-parentheses
-  :ensure t)
+(use-package highlight-parentheses)
 
-(use-package ahk-mode
-  :ensure t)
+(use-package ahk-mode)
 
 ;; -- magit --------------------------------------------------------------------
 
@@ -353,7 +345,6 @@ The package list is refreshed in `lbo:ensure-package'.")
 ;; https://github.com/bradwright/emacs-d/blob/master/packages/init-magit.el
 ;; http://whattheemacsd.com/setup-magit.el-01.html
 (use-package magit
-  :ensure t
   :bind (("C-x g" . magit-status)
          ("C-c b" . magit-blame)
          :map magit-status-mode-map
@@ -385,28 +376,63 @@ The package list is refreshed in `lbo:ensure-package'.")
 
 ;; -- clojure ------------------------------------------------------------------
 
-(use-package clojure-mode
+;; (defun mode-name-as-lambda-symbol ()
+;;   (setq mode-name "λ"))
+
+;; ;; (add-hook 'emacs-lisp-mode-hook #'mode-name-as-lambda-symbol)
+
+;; (use-package clojure-mode
+;;   :config
+;;   (add-hook 'clojure-mode-hook #'mode-name-as-lambda-symbol))
+;;
+;; (use-package cider
+;;   :config
+;;   (setq nrepl-log-messages t)
+;;
+;;   ;; from: https://www.john2x.com/emacs.html
+;;   ;; (setq nrepl-hide-special-buffers t)
+;;   (setq cider-repl-use-clojure-font-lock t)
+;;   (add-hook 'cider-repl-mode-hook 'subword-mode)
+;;   (add-hook 'cider-repl-mode-hook (lambda () (setq show-trailing-whitespace nil))))
+;;
+;; ;; consider:
+;; ;;    clj-refactor
+;; ;;    flycheck-clj-kondo
+;;
+;; ;; (use-package flycheck-joker)
+
+
+(use-package clojure-mode)
+
+(use-package cider)
+
+(use-package lsp-mode
   :ensure t
-  :config
-  (add-hook 'clojure-mode-hook #'mode-name-as-lambda-symbol))
+  :hook ((clojure-mode . lsp)
+         (clojurec-mode . lsp)
+         (clojurescript-mode . lsp)))
 
-(use-package cider
-  :ensure t
-  :config
-  (setq nrepl-log-messages t)
+(use-package lsp-ui
+  :commands lsp-ui-mode)
 
-  ;; from: https://www.john2x.com/emacs.html
-  ;; (setq nrepl-hide-special-buffers t)
-  (setq cider-repl-use-clojure-font-lock t)
-  (add-hook 'cider-repl-mode-hook 'subword-mode)
-  (add-hook 'cider-repl-mode-hook (lambda () (setq show-trailing-whitespace nil))))
 
-;; consider:
-;;    clj-refactor
-;;    flycheck-clj-kondo
+;; from: https://blog.sumtypeofway.com/posts/emacs-config.html
+(use-package mood-line
+  :config (mood-line-mode))
 
-(use-package flycheck-joker
-  :ensure t)
+
+
+
+(defun pt/split-window-thirds ()
+  "Split a window into thirds."
+  (interactive)
+  (split-window-right)
+  (split-window-right)
+  (balance-windows))
+
+(bind-key "C-c 3" #'pt/split-window-thirds)
+
+
 
 ;; -----------------------------------------------------------------------------
 
@@ -480,10 +506,10 @@ The package list is refreshed in `lbo:ensure-package'.")
                     :inherit nil
                     :box `(:line-width 3 :color ,"#f5f2ef" :style nil))
 
+(add-to-list 'load-path "~/.emacs.d/lisp/")
 ;; (require 'extra-use-package) ; (package-initialize) -- for the why check package--ensure-init-file
-;; (require 'extra-ediff)
-;; (require 'extra-xml)
-;; (require 'extra-utils)
+(require 'extra-ediff)
+(require 'extra-xml)
 ;; (require 'extra-navigation)
 
 ;; -- extra --------------------------------------------------------------------
@@ -676,15 +702,13 @@ The package list is refreshed in `lbo:ensure-package'.")
 (setq browse-url-browser-function
       '(("^https?://github" . my-browse-url-firefox-privately)
         ("^https?://t\\.co" . my-browse-url-firefox-privately)
-        ("^https?://instagram\\.com" . my-browse-url-firefox-privately)
-        ;; ("." . my-browse-url-maybe-privately)))
         ("." . my-browse-url-firefox-privately)))
 
 ;; -------------------------------------
 
 ;; from: https://stackoverflow.com/questions/43765/pin-emacs-buffers-to-windows-for-cscope
 (defun toggle-window-dedicated ()
-  "Toggle whether the current active window is dedicated or not"
+  "Toggle whether the current active window is dedicated or not."
   (interactive)
   (message (if (let (window (get-buffer-window (current-buffer)))
                  (set-window-dedicated-p window (not (window-dedicated-p window))))
